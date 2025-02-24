@@ -4,17 +4,21 @@
 
 This API provides access to information about public toilets in Brussels, including location, schedule, accessibility, and other relevant details. The data is sourced from the Brussels Open Data Store.
 
+## Production Environment
+
+**Base URL:** https://brussels-toilets-api-16c02a1b159d.herokuapp.com
+
 ## API Testing Results
 
 ### 1. Basic Toilets Query
-**Endpoint:** GET /api/toilets
+**Endpoint:** https://brussels-toilets-api-16c02a1b159d.herokuapp.com/api/toilets
 **Description:** Returns all toilets without filters
 **Response:**
 - Total toilets: 100
 - Contains all toilet facilities regardless of status
 
 ### 2. Free Toilets
-**Endpoint:** GET /api/toilets?pricing=Free
+**Endpoint:** https://brussels-toilets-api-16c02a1b159d.herokuapp.com/api/toilets?pricing=Free
 **Description:** Returns only free toilets
 **Test Results:**
 - Total toilets: 83
@@ -22,7 +26,7 @@ This API provides access to information about public toilets in Brussels, includ
 - Includes both PRM and non-PRM accessible toilets
 
 ### 3. PRM Accessible Toilets
-**Endpoint:** GET /api/toilets?accessibility=PRM
+**Endpoint:** https://brussels-toilets-api-16c02a1b159d.herokuapp.com/api/toilets?accessibility=PRM
 **Description:** Returns only PRM accessible toilets
 **Test Results:**
 - Total toilets: 39
@@ -30,14 +34,14 @@ This API provides access to information about public toilets in Brussels, includ
 - Includes both free and paying toilets
 
 ### 4. Free & PRM Accessible Toilets
-**Endpoint:** GET /api/toilets?pricing=Free&accessibility=PRM
+**Endpoint:** https://brussels-toilets-api-16c02a1b159d.herokuapp.com/api/toilets?pricing=Free&accessibility=PRM
 **Description:** Returns toilets that are both free and PRM accessible
 **Test Results:**
 - Total toilets: 27
 - All returned toilets are free and PRM accessible
 
 ### 5. Currently Open, Free & PRM Accessible Toilets
-**Endpoint:** GET /api/toilets?pricing=Free&accessibility=PRM&openNow=true
+**Endpoint:** https://brussels-toilets-api-16c02a1b159d.herokuapp.com/api/toilets?pricing=Free&accessibility=PRM&openNow=true
 **Description:** Returns toilets that are free, PRM accessible, and currently open
 **Test Results:**
 - Total toilets: 16
