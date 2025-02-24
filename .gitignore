@@ -9,6 +9,10 @@ yarn-error.log*
 .env.local
 .env.*.local
 
+#Unused files
+routes/auth.js
+routes/register.js
+
 # System files
 .DS_Store
 

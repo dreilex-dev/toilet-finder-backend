@@ -7,12 +7,12 @@ const router = express.Router();
 
 const BRUSSELS_API_URL = 'https://opendata.brussels.be/api/explore/v2.1/catalog/datasets/toilettes_publiques_vbx/records?limit=100';
 
-// Cache pentru 5 minute
+// Cache for 5 minutes
 const cache = new NodeCache({ stdTTL: 300 });
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minute
-    max: 100 // limită de 100 request-uri per IP
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit of 100 requests per IP
 });
 
 router.use(limiter);
@@ -42,7 +42,7 @@ const fetchToiletsData = async () => {
     return data;
 };
 
-// Funcție pentru verificarea dacă toaleta este deschisă la momentul curent
+// Function to check if the toilet is open at the current time
 const isToiletOpen = (openingHours) => {
     if (!openingHours || openingHours === '?') return false;
     if (openingHours === '24/24') return true;
@@ -51,7 +51,7 @@ const isToiletOpen = (openingHours) => {
     const currentHour = now.getHours();
     const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
 
-    // Mapare zile pentru diferite formate
+    // Mapping for different formats
     const dayMap = {
         1: ['Lu', 'Ma', 'Monday'],
         2: ['Ma', 'Di', 'Tuesday'],
@@ -93,9 +93,9 @@ const isToiletOpen = (openingHours) => {
     return false;
 };
 
-// Funcție pentru calculul distanței între două puncte (folosind formula Haversine)
+// Function to calculate the distance between two points (using the Haversine formula)
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Raza Pământului în km
+    const R = 6371; // Earth's radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = 
@@ -103,16 +103,16 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
         Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
         Math.sin(dLon/2) * Math.sin(dLon/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c; // Distanța în km
+    return R * c; // Distance in km
 };
 
-// Funcție pentru estimarea timpului de călătorie (presupunem viteza medie de mers pe jos 5 km/h)
+// Function to estimate the travel time (assuming a walking speed of 5 km/h)
 const estimateTravelTime = (distance) => {
     const walkingSpeedKmH = 5;
-    return (distance / walkingSpeedKmH) * 60; // Timpul în minute
+    return (distance / walkingSpeedKmH) * 60; // Time in minutes
 };
 
-// Funcție pentru verificarea dacă toaleta va fi încă deschisă când ajunge utilizatorul
+// Function to check if the toilet will be open when the user arrives
 const willBeOpenOnArrival = (openingHours, travelTimeMinutes) => {
     if (!openingHours || openingHours === '?') return false;
     if (openingHours === '24/24') return true;
@@ -210,7 +210,7 @@ router.get('/', async (req, res) => {
 
         let data = await fetchToiletsData();
         
-        // Verificăm dacă avem date valide
+        // Check if we have valid data
         if (!data || !data.results || !Array.isArray(data.results)) {
             return res.status(500).json({
                 error: "Invalid data format",
@@ -222,7 +222,7 @@ router.get('/', async (req, res) => {
             const toiletLat = toilet.geo_point_2d.lat;
             const toiletLng = toilet.geo_point_2d.lon;
             
-            // Calculăm distanța și timpul de călătorie doar dacă avem poziția utilizatorului
+            // Calculate distance and travel time only if we have user coordinates
             let distance = null;
             let estimatedTravelTime = null;
             let willBeOpen = true;
@@ -281,7 +281,7 @@ router.get('/', async (req, res) => {
             };
         });
 
-        // Filtrare pentru toalete deschise și accesibile
+        // Filter for open and accessible toilets
         if (openNow === 'true') {
             toilets = toilets.filter(toilet => 
                 toilet.schedule.isCurrentlyOpen && 
@@ -289,21 +289,21 @@ router.get('/', async (req, res) => {
             );
         }
 
-        // Opțional: sortare după distanță dacă avem poziția utilizatorului
+        // Optional: sort by distance if we have user coordinates
         if (userLat && userLng) {
             toilets.sort((a, b) => 
                 (a.distance.kilometers || Infinity) - (b.distance.kilometers || Infinity)
             );
         }
 
-        // Filtrare pentru PRM
+        // Filter for PRM
         if (accessibility === "PRM") {
             toilets = toilets.filter(
                 toilet => toilet.details.accessibility === "PRM"
             );
         }
 
-        // Adăugăm filtrarea pentru pricing
+        // Add filtering for pricing
         if (pricing === "Free") {
             toilets = toilets.filter(
                 toilet => toilet.details.pricing === "Free"
